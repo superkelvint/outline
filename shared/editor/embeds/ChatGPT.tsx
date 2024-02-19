@@ -12,7 +12,6 @@ function ChatGPT({matches, ...props}) {
     const url = embed.settings?.url;    // contains both url and api_key, separated by ~
     const chat_server_url = url.substring(0, url.indexOf("~"));
     const openai_api_key = url.substring(url.indexOf("~") + 1);
-    console.log(chat_server_url, openai_api_key)
     const [chatlog, setChatlog] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

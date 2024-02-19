@@ -276,11 +276,17 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
       return;
     }
 
+
     if (event.key === "Enter") {
       event.preventDefault();
       event.stopPropagation();
 
       const href = event.currentTarget.value;
+      if (href.trim().length == 0) {
+        props.onClose();
+        view.focus();
+        return;
+      }
       const matches = "matcher" in insertItem && insertItem.matcher(href);
 
       if (!matches) {

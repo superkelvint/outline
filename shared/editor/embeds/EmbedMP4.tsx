@@ -1,5 +1,4 @@
 import * as React from "react";
-import Frame from "../components/Frame";
 import { EmbedProps as Props } from ".";
 
 function EmbedMP4({ matches, ...props }: Props) {

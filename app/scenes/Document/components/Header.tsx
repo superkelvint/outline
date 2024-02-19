@@ -100,6 +100,8 @@ function DocumentHeader({
   const isEditingFocus = useEditingFocus();
   const { editor } = useDocumentContext();
 
+  window._outline_editor = editor
+
   // We cache this value for as long as the component is mounted so that if you
   // apply a template there is still the option to replace it until the user
   // navigates away from the doc

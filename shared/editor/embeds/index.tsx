@@ -18,6 +18,7 @@ import Vimeo from "./Vimeo";
 import YouTube from "./YouTube";
 import Iframe from "./Iframe";
 import EmbedMP4 from "./EmbedMP4";
+import ChatGPT from "./ChatGPT";
 
 export type EmbedProps = {
   isSelected: boolean;
@@ -488,7 +489,7 @@ const embeds: EmbedDescriptor[] = [
     keywords: "embed iframe",
     defaultHidden: true,
     regexMatch: [
-      /(.*)/i,
+      /^(https?:\/\/.*)/i,
     ],
     icon: <Img src="/images/framer.png" alt="Iframe" />,
     component: Iframe,
@@ -498,10 +499,20 @@ const embeds: EmbedDescriptor[] = [
     keywords: "embed video",
     defaultHidden: true,
     regexMatch: [
-      /(.*\.mp4)/i,
+      /^(https?.*\.mp4)/i,
     ],
     icon: <Img src="/images/youtube.png" alt="Iframe" />,
     component: EmbedMP4,
+  }),
+  new EmbedDescriptor({
+    title: "Ask ChatGPT about this document",
+    keywords: "chatgpt chat",
+    defaultHidden: true,
+    icon: <Img src="/images/framer.png" alt="Iframe" />,
+    regexMatch: [
+      /(.* .*)/i,
+    ],
+    component: ChatGPT,
   }),
   new EmbedDescriptor({
     title: "Otter.ai",

@@ -506,6 +506,7 @@ const embeds: EmbedDescriptor[] = [
   }),
   new EmbedDescriptor({
     title: "Ask ChatGPT about this document",
+    name: IntegrationService.OpenAI,
     keywords: "chatgpt chat",
     defaultHidden: true,
     icon: <Img src="/images/framer.png" alt="Iframe" />,

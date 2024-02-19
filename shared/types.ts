@@ -86,12 +86,14 @@ export enum IntegrationService {
   Diagrams = "diagrams",
   Grist = "grist",
   Slack = "slack",
+  OpenAI = "openai",
   GoogleAnalytics = "google-analytics",
 }
 
 export enum UserCreatableIntegrationService {
   Diagrams = "diagrams",
   Grist = "grist",
+  OpenAI = "openai",
   GoogleAnalytics = "google-analytics",
 }
 

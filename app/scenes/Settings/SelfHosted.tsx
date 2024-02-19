@@ -17,6 +17,7 @@ import SettingRow from "./components/SettingRow";
 type FormData = {
   drawIoUrl: string;
   gristUrl: string;
+  chatUrl: string;
 };
 
 function SelfHosted() {
@@ -33,6 +34,11 @@ function SelfHosted() {
     service: IntegrationService.Grist,
   }) as Integration<IntegrationType.Embed> | undefined;
 
+  const integrationOpenAI = find(integrations.orderedData, {
+    type: IntegrationType.Embed,
+    service: IntegrationService.OpenAI,
+  }) as Integration<IntegrationType.Embed> | undefined;
+
   const {
     register,
     reset,
@@ -43,6 +49,7 @@ function SelfHosted() {
     defaultValues: {
       drawIoUrl: integrationDiagrams?.settings.url,
       gristUrl: integrationGrist?.settings.url,
+      chatUrl: integrationOpenAI?.settings.url,
     },
   });
 
@@ -56,12 +63,14 @@ function SelfHosted() {
     reset({
       drawIoUrl: integrationDiagrams?.settings.url,
       gristUrl: integrationGrist?.settings.url,
+      chatUrl: integrationOpenAI?.settings.url,
     });
-  }, [integrationDiagrams, integrationGrist, reset]);
+  }, [integrationDiagrams, integrationGrist, integrationOpenAI, reset]);
 
   const handleSubmit = React.useCallback(
     async (data: FormData) => {
       try {
+        console.log(data)
         if (data.drawIoUrl) {
           await integrations.save({
             id: integrationDiagrams?.id,
@@ -88,12 +97,25 @@ function SelfHosted() {
           await integrationGrist?.delete();
         }
 
+        if (data.chatUrl) {
+          await integrations.save({
+            id: integrationOpenAI?.id,
+            type: IntegrationType.Embed,
+            service: IntegrationService.OpenAI,
+            settings: {
+              url: data.chatUrl,
+            },
+          });
+        } else {
+          await integrationOpenAI?.delete();
+        }
+
         toast.success(t("Settings saved"));
       } catch (err) {
         toast.error(err.message);
       }
     },
-    [integrations, integrationDiagrams, integrationGrist, t]
+    [integrations, integrationDiagrams, integrationGrist, integrationOpenAI, t]
   );
 
   return (
@@ -126,6 +148,18 @@ function SelfHosted() {
             placeholder="https://docs.getgrist.com/"
             pattern="https?://.*"
             {...register("gristUrl")}
+          />
+        </SettingRow>
+
+        <SettingRow
+            label="Chat Server"
+            name="chatUrl"
+            description={t("Add your Chat server URL here in the form http://host:port/path~openai_api_key")}
+            border={false}
+        >
+          <Input
+              placeholder="http://xxx:xxx~sk-xxx"
+              {...register("chatUrl")}
           />
         </SettingRow>
 

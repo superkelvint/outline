@@ -53,6 +53,10 @@ export default class Collection extends ParanoidModel {
 
   @Field
   @observable
+  chatgpt: boolean;
+
+  @Field
+  @observable
   index: string;
 
   @Field
@@ -87,6 +91,7 @@ export default class Collection extends ParanoidModel {
 
     reaction(() => this.permission, resetDocumentPolicies);
     reaction(() => this.sharing, resetDocumentPolicies);
+    reaction(() => this.chatgpt, resetDocumentPolicies);
   }
 
   @computed

@@ -292,6 +292,7 @@ export type CollectionEvent = BaseEvent<Collection> &
         data: {
           privacyChanged: boolean;
           sharingChanged: boolean;
+          chatgptChanged: boolean;
         };
       }
   );

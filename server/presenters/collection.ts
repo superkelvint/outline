@@ -14,6 +14,7 @@ export default function presentCollection(collection: Collection) {
     color: collection.color || colorPalette[0],
     permission: collection.permission,
     sharing: collection.sharing,
+    chatgpt: collection.chatgpt,
     createdAt: collection.createdAt,
     updatedAt: collection.updatedAt,
     deletedAt: collection.deletedAt,

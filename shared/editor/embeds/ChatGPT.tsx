@@ -9,6 +9,10 @@ ANSWER:`
 
 function ChatGPT({matches, ...props}) {
     const { embed } = props;
+    let chatgpt_enabled = window._outline_document.collection.chatgpt;
+    if (typeof chatgpt_enabled === "undefined" || !chatgpt_enabled) {
+        return <blockquote>ChatGPT is disabled for this collection. Contact the collection owner to enable it.</blockquote>;
+    }
     const url = embed.settings?.url;    // contains both url and api_key, separated by ~
     const chat_server_url = url.substring(0, url.indexOf("~"));
     const openai_api_key = url.substring(url.indexOf("~") + 1);

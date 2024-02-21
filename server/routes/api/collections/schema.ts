@@ -20,6 +20,7 @@ export const CollectionsCreateSchema = BaseSchema.extend({
       .nullish()
       .transform((val) => (isUndefined(val) ? null : val)),
     sharing: z.boolean().default(true),
+    chatgpt: z.boolean().default(false),
     icon: z
       .string()
       .max(ValidateIcon.maxLength, {
@@ -189,6 +190,7 @@ export const CollectionsUpdateSchema = BaseSchema.extend({
       })
       .optional(),
     sharing: z.boolean().optional(),
+    chatgpt: z.boolean().optional(),
   }),
 });
 

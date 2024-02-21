@@ -633,7 +633,7 @@ router.post(
   transaction(),
   async (ctx: APIContext<T.CollectionsUpdateReq>) => {
     const { transaction } = ctx.state;
-    const { id, name, description, icon, permission, color, sort, sharing } =
+    const { id, name, description, icon, permission, color, sort, sharing, chatgpt } =
       ctx.input.body;
 
     const { user } = ctx.state.auth;
@@ -665,6 +665,7 @@ router.post(
 
     let privacyChanged = false;
     let sharingChanged = false;
+    let chatgptChanged = false;
 
     if (name !== undefined) {
       collection.name = name.trim();
@@ -692,6 +693,11 @@ router.post(
       collection.sharing = sharing;
     }
 
+    if (chatgpt !== undefined) {
+      chatgptChanged = chatgpt !== collection.chatgpt;
+      collection.chatgpt = chatgpt;
+    }
+
     if (sort !== undefined) {
       collection.sort = sort;
     }
@@ -713,7 +719,7 @@ router.post(
       }
     );
 
-    if (privacyChanged || sharingChanged) {
+    if (privacyChanged || sharingChanged || chatgptChanged) {
       await Event.create(
         {
           name: "collections.permission_changed",
@@ -723,6 +729,7 @@ router.post(
           data: {
             privacyChanged,
             sharingChanged,
+            chatgptChanged,
           },
           ip: ctx.request.ip,
         },
@@ -734,7 +741,7 @@ router.post(
 
     // must reload to update collection membership for correct policy calculation
     // if the privacy level has changed. Otherwise skip this query for speed.
-    if (privacyChanged || sharingChanged) {
+    if (privacyChanged || sharingChanged || chatgptChanged) {
       await collection.reload({ transaction });
       const team = await Team.findByPk(user.teamId, {
         transaction,

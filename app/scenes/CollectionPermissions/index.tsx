@@ -165,13 +165,29 @@ function CollectionPermissions({ collectionId }: Props) {
     [collection, t]
   );
 
+  const handleChatGPTChange = React.useCallback(
+    async (ev: React.ChangeEvent<HTMLInputElement>) => {
+      try {
+        await collection.save({
+          chatgpt: ev.target.checked,
+        });
+        toast.success(t("Chat with documents permissions were updated"));
+      } catch (err) {
+        toast.error(t("Could not update chat with document permissions"));
+      }
+    },
+    [collection, t]
+  );
+
   const collectionName = collection.name;
   const collectionGroups = groups.inCollection(collection.id);
   const collectionUsers = users.inCollection(collection.id);
   const isEmpty = !collectionGroups.length && !collectionUsers.length;
   const sharing = collection.sharing;
+  const chatgpt = collection.chatgpt;
   const teamSharingEnabled = !!auth.team && auth.team.sharing;
 
+  console.log("FOOBAR", sharing, chatgpt, teamSharingEnabled, collection.id)
   return (
     <Flex column>
       <InputSelectPermission
@@ -230,6 +246,19 @@ function CollectionPermissions({ collectionId }: Props) {
               Public sharing is currently disabled in the workspace security
               settings.
             </Trans>
+          )
+        }
+      />
+      <Switch
+        id="chatgpt"
+        label={t("Enable chat with documents")}
+        onChange={handleChatGPTChange}
+        checked={chatgpt}
+        note={
+          (
+              <Trans>
+                  When enabled, chatgpt over documents is supported.
+              </Trans>
           )
         }
       />

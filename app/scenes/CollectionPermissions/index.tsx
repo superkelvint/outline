@@ -197,7 +197,7 @@ function CollectionPermissions({ collectionId }: Props) {
       <PermissionExplainer size="small">
         {collection.isPrivate && (
           <Trans
-            defaults="The <em>{{ collectionName }}</em> collection is private. Workspace members have no access to it by default."
+            defaults="The <em>{{ collectionName }}</em> collection is <em>private</em>. Only the users and groups listed below have access."
             values={{
               collectionName,
             }}
@@ -208,7 +208,7 @@ function CollectionPermissions({ collectionId }: Props) {
         )}
         {collection.permission === CollectionPermission.ReadWrite && (
           <Trans
-            defaults="Workspace members can view and edit documents in the <em>{{ collectionName }}</em> collection by default."
+            defaults="Everyone can <em>see</em> this collection and <em>view/edit documents</em> in it."
             values={{
               collectionName,
             }}
@@ -219,8 +219,7 @@ function CollectionPermissions({ collectionId }: Props) {
         )}
         {collection.permission === CollectionPermission.Read && (
           <Trans
-            defaults="Workspace members can view documents in the <em>{{ collectionName }}</em> collection by
-          default."
+            defaults="Everyone can <em>see</em> this collection and <em>view documents</em> in it."
             values={{
               collectionName,
             }}

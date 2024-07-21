@@ -251,7 +251,9 @@ function DocumentHeader({
             {!isPublishing && isSaving && user?.separateEditMode && (
               <Status>{t("Saving")}…</Status>
             )}
-            {!isDeleted && !isRevision && <Collaborators document={document} />}
+            {!isDeleted && !isRevision && can.listViews && (
+              <Collaborators document={document} />
+            )}
             {(isEditing || !user?.separateEditMode) && !isTemplate && isNew && (
               <Action>
                 <TemplatesMenu

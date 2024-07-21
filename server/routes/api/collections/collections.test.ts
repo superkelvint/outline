@@ -1,6 +1,5 @@
 import { CollectionPermission } from "@shared/types";
-import { colorPalette } from "@shared/utils/collections";
-import { Document, UserMembership, GroupPermission } from "@server/models";
+import { Document, UserMembership, GroupMembership } from "@server/models";
 import {
   buildUser,
   buildAdmin,
@@ -175,6 +174,23 @@ describe("#collections.move", () => {
         id: collection.id,
         index: "P",
         icon: "flame",
+      },
+    });
+    const body = await res.json();
+    expect(res.status).toEqual(200);
+    expect(body.success).toBe(true);
+  });
+
+  it("should allow setting an emoji as icon", async () => {
+    const team = await buildTeam();
+    const admin = await buildAdmin({ teamId: team.id });
+    const collection = await buildCollection({ teamId: team.id });
+    const res = await server.post("/api/collections.move", {
+      body: {
+        token: admin.getJwtToken(),
+        id: collection.id,
+        index: "P",
+        icon: "😁",
       },
     });
     const body = await res.json();
@@ -793,7 +809,7 @@ describe("#collections.group_memberships", () => {
       userId: user.id,
       permission: CollectionPermission.ReadWrite,
     });
-    await GroupPermission.create({
+    await GroupMembership.create({
       createdById: user.id,
       collectionId: collection.id,
       groupId: group.id,
@@ -805,14 +821,14 @@ describe("#collections.group_memberships", () => {
         id: collection.id,
       },
     });
-    const [membership] = await collection.$get("collectionGroupMemberships");
+    const [membership] = await collection.$get("groupMemberships");
     const body = await res.json();
     expect(res.status).toEqual(200);
     expect(body.data.groups.length).toEqual(1);
     expect(body.data.groups[0].id).toEqual(group.id);
-    expect(body.data.collectionGroupMemberships.length).toEqual(1);
-    expect(body.data.collectionGroupMemberships[0].id).toEqual(membership.id);
-    expect(body.data.collectionGroupMemberships[0].permission).toEqual(
+    expect(body.data.groupMemberships.length).toEqual(1);
+    expect(body.data.groupMemberships[0].id).toEqual(membership.id);
+    expect(body.data.groupMemberships[0].permission).toEqual(
       CollectionPermission.ReadWrite
     );
   });
@@ -837,13 +853,13 @@ describe("#collections.group_memberships", () => {
       userId: user.id,
       permission: CollectionPermission.ReadWrite,
     });
-    await GroupPermission.create({
+    await GroupMembership.create({
       createdById: user.id,
       collectionId: collection.id,
       groupId: group.id,
       permission: CollectionPermission.ReadWrite,
     });
-    await GroupPermission.create({
+    await GroupMembership.create({
       createdById: user.id,
       collectionId: collection.id,
       groupId: group2.id,
@@ -880,13 +896,13 @@ describe("#collections.group_memberships", () => {
       userId: user.id,
       permission: CollectionPermission.ReadWrite,
     });
-    await GroupPermission.create({
+    await GroupMembership.create({
       createdById: user.id,
       collectionId: collection.id,
       groupId: group.id,
       permission: CollectionPermission.ReadWrite,
     });
-    await GroupPermission.create({
+    await GroupMembership.create({
       createdById: user.id,
       collectionId: collection.id,
       groupId: group2.id,
@@ -1150,7 +1166,6 @@ describe("#collections.create", () => {
     expect(body.data.name).toBe("Test");
     expect(body.data.sort.field).toBe("index");
     expect(body.data.sort.direction).toBe("asc");
-    expect(colorPalette.includes(body.data.color)).toBeTruthy();
     expect(body.policies.length).toBe(1);
     expect(body.policies[0].abilities.read).toBeTruthy();
   });

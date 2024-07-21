@@ -19,7 +19,9 @@ import { schema, parser } from "@server/editor";
 import Logger from "@server/logging/Logger";
 import { trace } from "@server/logging/tracing";
 import Attachment from "@server/models/Attachment";
+import User from "@server/models/User";
 import FileStorage from "@server/storage/files";
+import { TextHelper } from "./TextHelper";
 
 export type HTMLOptions = {
   /** A title, if it should be included */
@@ -173,6 +175,29 @@ export class ProsemirrorHelper {
   }
 
   /**
+   * Replaces all template variables in the node.
+   *
+   * @param data The ProsemirrorData object to replace variables in
+   * @param user The user to use for replacing variables
+   * @returns The content with variables replaced
+   */
+  static replaceTemplateVariables(data: ProsemirrorData, user: User) {
+    function replace(node: ProsemirrorData) {
+      if (node.type === "text" && node.text) {
+        node.text = TextHelper.replaceTemplateVariables(node.text, user);
+      }
+
+      if (node.content) {
+        node.content.forEach(replace);
+      }
+
+      return node;
+    }
+
+    return replace(data);
+  }
+
+  /**
    * Returns the document as a plain JSON object with attachment URLs signed.
    *
    * @param node The node to convert to JSON
@@ -260,14 +285,20 @@ export class ProsemirrorHelper {
     doc.descendants((node) => {
       node.marks.forEach((mark) => {
         if (mark.type.name === "link") {
-          urls.push(mark.attrs.href);
+          if (mark.attrs.href) {
+            urls.push(mark.attrs.href);
+          }
         }
       });
       if (["image", "video"].includes(node.type.name)) {
-        urls.push(node.attrs.src);
+        if (node.attrs.src) {
+          urls.push(node.attrs.src);
+        }
       }
       if (node.type.name === "attachment") {
-        urls.push(node.attrs.href);
+        if (node.attrs.href) {
+          urls.push(node.attrs.href);
+        }
       }
     });
 

@@ -42,7 +42,7 @@ import { ValidationError } from "@server/errors";
 import Document from "./Document";
 import FileOperation from "./FileOperation";
 import Group from "./Group";
-import GroupPermission from "./GroupPermission";
+import GroupMembership from "./GroupMembership";
 import GroupUser from "./GroupUser";
 import Team from "./Team";
 import User from "./User";
@@ -63,8 +63,8 @@ import NotContainsUrl from "./validators/NotContainsUrl";
         required: false,
       },
       {
-        model: GroupPermission,
-        as: "collectionGroupMemberships",
+        model: GroupMembership,
+        as: "groupMemberships",
         required: false,
         // use of "separate" property: sequelize breaks when there are
         // nested "includes" with alternating values for "required"
@@ -81,7 +81,7 @@ import NotContainsUrl from "./validators/NotContainsUrl";
             include: [
               {
                 model: GroupUser,
-                as: "groupMemberships",
+                as: "groupUsers",
                 required: true,
               },
             ],
@@ -110,8 +110,8 @@ import NotContainsUrl from "./validators/NotContainsUrl";
         required: false,
       },
       {
-        model: GroupPermission,
-        as: "collectionGroupMemberships",
+        model: GroupMembership,
+        as: "groupMemberships",
         required: false,
         // use of "separate" property: sequelize breaks when there are
         // nested "includes" with alternating values for "required"
@@ -128,7 +128,7 @@ import NotContainsUrl from "./validators/NotContainsUrl";
             include: [
               {
                 model: GroupUser,
-                as: "groupMemberships",
+                as: "groupUsers",
                 required: true,
                 where: {
                   userId,
@@ -183,6 +183,7 @@ class Collection extends ParanoidModel<
   @Column(DataType.JSONB)
   content: ProsemirrorData | null;
 
+  /** An icon (or) emoji to use as the collection icon. */
   @Length({
     max: 50,
     msg: `icon must be 50 characters or less`,
@@ -190,6 +191,7 @@ class Collection extends ParanoidModel<
   @Column
   icon: string | null;
 
+  /** The color of the icon. */
   @IsHexColor
   @Column
   color: string | null;
@@ -274,10 +276,6 @@ class Collection extends ParanoidModel<
 
   @BeforeSave
   static async onBeforeSave(model: Collection) {
-    if (model.icon === "collection") {
-      model.icon = null;
-    }
-
     if (!model.content) {
       model.content = await DocumentHelper.toJSON(model);
     }
@@ -328,13 +326,13 @@ class Collection extends ParanoidModel<
   @HasMany(() => UserMembership, "collectionId")
   memberships: UserMembership[];
 
-  @HasMany(() => GroupPermission, "collectionId")
-  collectionGroupMemberships: GroupPermission[];
+  @HasMany(() => GroupMembership, "collectionId")
+  groupMemberships: GroupMembership[];
 
   @BelongsToMany(() => User, () => UserMembership)
   users: User[];
 
-  @BelongsToMany(() => Group, () => GroupPermission)
+  @BelongsToMany(() => Group, () => GroupMembership)
   groups: Group[];
 
   @BelongsTo(() => User, "createdById")
@@ -373,8 +371,8 @@ class Collection extends ParanoidModel<
       return [];
     }
 
-    const groupMemberships = collection.collectionGroupMemberships
-      .map((cgm) => cgm.group.groupMemberships)
+    const groupMemberships = collection.groupMemberships
+      .map((cgm) => cgm.group.groupUsers)
       .flat();
     const membershipUserIds = [
       ...groupMemberships,

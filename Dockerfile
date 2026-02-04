@@ -1,5 +1,6 @@
 ARG APP_PATH=/opt/outline
-ARG BASE_IMAGE=outlinewiki/outline-base
+#ARG BASE_IMAGE=outlinewiki/outline-base
+ARG BASE_IMAGE=local/outline-base
 FROM ${BASE_IMAGE} AS base
 
 ARG APP_PATH
@@ -27,9 +28,15 @@ COPY --from=base --chown=nodejs:nodejs $APP_PATH/public ./public
 COPY --from=base --chown=nodejs:nodejs $APP_PATH/.sequelizerc ./.sequelizerc
 COPY --from=base --chown=nodejs:nodejs $APP_PATH/node_modules ./node_modules
 COPY --from=base --chown=nodejs:nodejs $APP_PATH/package.json ./package.json
+COPY --from=base --chown=nodejs:nodejs $APP_PATH/yarn.lock ./yarn.lock
+COPY --from=base --chown=nodejs:nodejs $APP_PATH/.yarnrc.yml ./.yarnrc.yml
+COPY --from=base --chown=nodejs:nodejs $APP_PATH/.yarn ./.yarn
 # Install wget to healthcheck the server
-RUN  apt-get update \
-    && apt-get install -y wget \
+RUN apt-get update -o Acquire::AllowInsecureRepositories=true \
+    -o Acquire::AllowDowngradeToInsecureRepositories=true || true \
+    && apt-get install -y --allow-unauthenticated debian-archive-keyring gnupg2 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends wget \
     && rm -rf /var/lib/apt/lists/*
 
 ENV FILE_STORAGE_LOCAL_ROOT_DIR=/var/lib/outline/data
@@ -38,6 +45,8 @@ RUN mkdir -p "$FILE_STORAGE_LOCAL_ROOT_DIR" && \
     chmod 1777 "$FILE_STORAGE_LOCAL_ROOT_DIR"
 
 VOLUME /var/lib/outline/data
+
+RUN corepack enable && corepack prepare yarn@4.11.0 --activate
 
 USER nodejs
 

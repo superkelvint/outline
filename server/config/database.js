@@ -15,9 +15,7 @@ module.exports = {
   production: {
     ...shared,
     dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      ssl: false,
     },
   },
 };
